@@ -1,0 +1,86 @@
+i
+a
+o
+O
+I
+A
+dd
+yy
+p
+P
+x
+X
+u
+gg
+G
+dw
+d$
+d0
+dG
+w
+b
+e
+0
+$
+:%s/antigo/novo/g
+:%s/antigo/novo/gc
+:set nu
+:set nonu
+:set ic
+:set noic
+:set hls
+:set nohls
+v
+V
+y
+d
+c
+r
+R
+J
+:w
+:wq
+:q
+:q!
+:e nome_do_arquivo
+:e!
+:r nome_do_arquivo
+:r !comando_externo
+:! comando_externo
+:bd
+:bnext
+:bprev
+ZZ
+zt
+zb
+H
+M
+L
+:w
+@a
+@a
+qa 
+gap
+dap
+ci'
+ci"
+ci{
+yap
+yag
+yac
+da'
+\n
+print
+~
+~
+1
+2
+3
+4
+5
+6
+7
+8
+9
+0
+
