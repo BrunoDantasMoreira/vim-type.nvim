@@ -1,0 +1,166 @@
+*vim-type.txt*        Treino de digitação dentro do Neovim
+
+==============================================================================
+CONTEÚDO                                                   *vim-type-contents*
+
+  1. Introdução ............................... |vim-type-intro|
+  2. Comando .................................. |:Type|
+  3. Teclas ................................... |vim-type-keys|
+  4. Erros .................................... |vim-type-errors|
+  5. Resultado e wpm .......................... |vim-type-wpm|
+  6. Configuração ............................. |vim-type-config|
+  7. Listas próprias .......................... |vim-type-lists|
+  8. Cores .................................... |vim-type-highlights|
+
+==============================================================================
+1. INTRODUÇÃO                                                 *vim-type-intro*
+
+vim-type abre uma janela flutuante com um texto e você digita por cima dele.
+Cada caractere fica colorido conforme você acerta ou erra. No fim aparecem
+as palavras por minuto, a precisão e um gráfico do seu ritmo. Os resultados
+ficam salvos para acompanhar a evolução.
+
+Precisa do Neovim 0.9 ou mais novo.
+
+==============================================================================
+2. COMANDO                                                             *:Type*
+
+:Type [lista] [{n}s] [{n}] [punct] [nopunct]
+        Começa um teste. Os argumentos podem vir em qualquer ordem e
+        completam com <Tab>. Os que faltarem vêm da |vim-type-config|.
+
+        lista       "en", "pt", "vim" ou uma lista sua (|vim-type-lists|)
+        {n}s        contra o relógio, {n} segundos. Ex: 60s
+        {n}         quantidade de palavras. Ex: 50
+        punct       liga maiúsculas e pontuação
+        nopunct     desliga maiúsculas e pontuação
+
+        Exemplos: >
+            :Type
+            :Type pt 15s
+            :Type vim 40
+            :Type en 60s punct
+<
+:Type stats                                                    *:Type-stats*
+        Mostra o histórico: total de testes, média recente, gráfico de
+        evolução, recordes por configuração e os últimos testes.
+
+:Type stats clear
+        Apaga todo o histórico (pede confirmação).
+
+Pelo Lua: >lua
+    require("vim-type").start({ "pt", "30s" })
+    require("vim-type").start({ list = "vim", mode = "words", words = 40 })
+<
+==============================================================================
+3. TECLAS                                                      *vim-type-keys*
+
+O relógio só começa na primeira tecla.
+
+Durante o teste:
+    <Tab>       reinicia com outras palavras
+    <Esc>       pausa (o relógio para e o texto trava)
+    <BS> <C-w>  apagam, mas não voltam para a linha anterior
+
+Pausado:
+    i a R       continua de onde parou
+    <Tab> r     reinicia
+    q           sai
+
+Na tela de resultado:
+    r <Tab>     faz de novo com a mesma configuração
+    s           abre as estatísticas
+    q <Esc> <CR>  fecha
+
+Durante o primeiro segundo da tela de resultado as teclas são ignoradas,
+porque quando o tempo acaba você provavelmente ainda está digitando.
+Enquanto a janela está aberta, teclas soltas no modo normal não disparam
+atalhos seus (como os de <leader>).
+
+==============================================================================
+4. ERROS                                                     *vim-type-errors*
+
+Letra errada        fica vermelha; dá para apagar e corrigir.
+Letra a mais        no fim da palavra não entra no texto, mas conta como
+                    erro e deixa o espaço marcado. Assim um erro não
+                    desalinha todo o resto.
+Espaço no meio      pula para a próxima palavra; as letras que faltaram
+                    ficam sublinhadas como perdidas.
+Espaço duplo        é ignorado.
+
+==============================================================================
+5. RESULTADO E WPM                                              *vim-type-wpm*
+
+Uma "palavra" vale 5 caracteres, contando os espaços.
+
+    wpm         caracteres certos / 5 / minutos
+    bruto       todos os caracteres digitados / 5 / minutos
+    precisão    teclas certas / total de teclas (erro corrigido ainda conta)
+
+Recordes só são comparados entre testes com a mesma lista, o mesmo modo e a
+mesma opção de pontuação.
+
+O histórico fica em `stdpath("data")/vim-type/history.json` e guarda os
+últimos 1000 testes.
+
+==============================================================================
+6. CONFIGURAÇÃO                                              *vim-type-config*
+
+O |vim-type.setup()| é opcional. Valores padrão: >lua
+
+    require("vim-type").setup({
+      list = "en",          -- lista padrão
+      mode = "time",        -- "time" ou "words"
+      time = 30,            -- segundos no modo "time"
+      words = 25,           -- palavras no modo "words"
+      punctuation = false,  -- maiúsculas e pontuação
+      width = 70,           -- largura máxima do texto
+      height = 3,           -- linhas visíveis
+      border = "rounded",   -- borda da janela (veja |nvim_open_win()|)
+      lists = {},           -- listas próprias, veja |vim-type-lists|
+    })
+<
+                                                            *vim-type.setup()*
+setup({opts})   Aplica a configuração. Pode ser chamado de novo a qualquer
+                momento.
+
+==============================================================================
+7. LISTAS PRÓPRIAS                                            *vim-type-lists*
+
+Listas embutidas:
+    en      palavras comuns do inglês
+    pt      palavras comuns do português (com acentos)
+    vim     comandos e movimentos do Vim (sem pontuação automática)
+
+Para adicionar as suas: >lua
+
+    require("vim-type").setup({
+      lists = {
+        -- arquivo com um item por linha (um item pode ter espaços)
+        python = "~/listas/python.txt",
+        -- raw = true desliga a pontuação automática
+        atalhos = { path = "~/listas/atalhos.txt", raw = true },
+        -- ou direto no Lua
+        frutas = { "banana", "maçã", "uva" },
+      },
+    })
+<
+Depois: `:Type python`, `:Type frutas 30s`.
+
+==============================================================================
+8. CORES                                                  *vim-type-highlights*
+
+    VimTypeCorrect      letra certa (cor do texto normal)
+    VimTypeWrong        letra errada (DiagnosticError)
+    VimTypeWrongSpace   espaço errado ou letra a mais (DiffDelete)
+    VimTypeMissed       letra pulada (Comment sublinhado)
+    VimTypeUntyped      ainda não digitado (Comment)
+    VimTypeResult       números do resultado (Title)
+    VimTypeLabel        rótulos (Comment)
+    VimTypeGraph        gráficos (Function)
+    VimTypeRecord       novo recorde (DiagnosticOk)
+
+Para mudar, defina o grupo depois do seu tema: >lua
+    vim.api.nvim_set_hl(0, "VimTypeWrong", { fg = "#ff5555", bold = true })
+<
+ vim:tw=78:ts=8:ft=help:norl:
